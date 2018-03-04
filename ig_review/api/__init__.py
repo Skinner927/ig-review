@@ -15,9 +15,12 @@ def create_app(settings_override=None):
 
 
 def error_handler(error):
+    if not isinstance(error, ApiError):
+        error = ApiError()
+
     return make_response(jsonify({
-        'message': error.message if hasattr(error, 'message') else 'Unknown error',
-    }), error.code if hasattr(error, 'code') else 500)
+        'message': error.message or 'Unknown error',
+    }), error.code or 500)
 
 
 class ApiError(Exception):
@@ -37,3 +40,8 @@ class ApiError(Exception):
 class InvalidUserPass(ApiError):
     code = 400
     message = 'Invalid username or password'
+
+
+class NotAuthenticated(ApiError):
+    code = 403
+    message = 'Not authenticated'
