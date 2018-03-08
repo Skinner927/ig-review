@@ -20,6 +20,7 @@ def error_handler(error):
 
     return make_response(jsonify({
         'message': error.message or 'Unknown error',
+        'code': error.error_code,
     }), error.code or 500)
 
 
@@ -27,9 +28,24 @@ class ApiError(Exception):
     message = 'Internal Error'
     code = 500
 
-    def __init__(self, message=None, code=None):
+    @property
+    def error_code(self):
+        return self._error_code or self.code
+
+    @error_code.setter
+    def error_code(self, val):
+        self._error_code = val
+
+    def __init__(self, message=None, error_code=None, code=None):
+        """
+        :param message: Message to send
+        :param error_code: Error specific code
+        :param code: HTTP code
+        """
         if message:
             self.message = message
+        if error_code:
+            self._error_code = error_code
         if code:
             self.code = code
 
@@ -38,10 +54,17 @@ class ApiError(Exception):
 
 
 class InvalidUserPass(ApiError):
-    code = 400
+    code = 422
     message = 'Invalid username or password'
+    _error_code = 1422
 
 
 class NotAuthenticated(ApiError):
-    code = 403
+    code = 401
     message = 'Not authenticated'
+    _error_code = 1401
+
+
+class NoDataException(ApiError):
+    code = 404
+    message = 'No data found'

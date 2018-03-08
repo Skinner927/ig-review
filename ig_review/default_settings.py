@@ -7,6 +7,16 @@ DEBUG = True
 SECRET_KEY = 'super-secret-key'
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=365)
 
+# Set up errors to be emailed
+ERROR_SMTP_ENABLED = False
+ERROR_SMTP_HOST = '127.0.0.1'
+ERROR_SMTP_USER = 'admin'
+ERROR_SMTP_PASS = 'hunter2'
+ERROR_SMTP_FROM = 'app@ig_review.foo'
+ERROR_SMTP_TO = ['admin@example.com']
+ERROR_SMTP_SUBJECT = 'ig_review error'
+ERROR_SMTP_SECURE = ()
+
 # STORAGE_ROOT specifies an absolute root dir.
 # If it's None, we'll use the flask instance directory.
 # Relative paths for below settings will be relative to ROOT_DIR.
@@ -19,6 +29,12 @@ IMAGES_REVIEW_DIR = 'images/review'
 IMAGES_SEND_DIR = 'images/send'
 # Flat file for user login
 USER_STORAGE_FILE = 'users.ini'
+
+CELERY_BROKER_URL = 'amqp://guest@localhost'
+CELERY_BACKEND_URL = 'rpc://'
+
+# How often to scrape in minutes
+SCRAPE_IG_INTERVAL = 60
 
 ### Below isn't used
 
