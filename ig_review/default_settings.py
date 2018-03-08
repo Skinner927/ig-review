@@ -30,11 +30,18 @@ IMAGES_SEND_DIR = 'images/send'
 # Flat file for user login
 USER_STORAGE_FILE = 'users.ini'
 
-CELERY_BROKER_URL = 'amqp://guest@localhost'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
 CELERY_BACKEND_URL = 'rpc://'
 
 # How often to scrape in minutes
 SCRAPE_IG_INTERVAL = 60
+SCRAPE_IG_USER = 'foobar'
+SCRAPE_IG_PASS = 'hunter2'
+SCRAPE_IG_MAIL_TO = 'foo@bar.zar'
+SCRAPE_IG_MAIL_FROM = 'someone@example.com'
+SCRAPE_IG_MAIL_HOST = '127.0.0.1'
+SCRAPE_IG_MAIL_USER = 'emailFoobar'
+SCRAPE_IG_MAIL_PASS = 'superSecret2'
 
 ### Below isn't used
 
