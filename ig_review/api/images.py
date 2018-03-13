@@ -1,11 +1,10 @@
 from flask import Blueprint, request, make_response, jsonify
 import os.path
-import random
 import shutil
-import string
 from . import NoDataException
 from .authentication import require_login
 from .image_storage import RootImageStorage
+import tasks
 
 bp = Blueprint('images', __name__)
 user_iterators = {}
@@ -21,6 +20,18 @@ def init_storage(setup_state):
     img_storage = RootImageStorage(setup_state.app.config['IMAGES_REVIEW_DIR'])
     _IMAGES_REVIEW_DIR = setup_state.app.config['IMAGES_REVIEW_DIR']
     _IMAGES_SEND_DIR = setup_state.app.config['IMAGES_SEND_DIR']
+
+
+@bp.route('/images/pull')
+def pull_images():
+    """
+    /images/pull
+    Trigger a scrape of IG to refresh to-be-reviewed images
+
+    :return:
+    """
+    tasks.do_scrape.delay()
+    return jsonify({'message': 'scheduled'})
 
 
 @bp.route('/images/users')
@@ -78,9 +89,7 @@ def mail_image(username, image_name):
         if not os.path.exists(_IMAGES_SEND_DIR):
             os.makedirs(_IMAGES_SEND_DIR)
 
-        rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
-        dest_path = os.path.join(_IMAGES_SEND_DIR, username + '_' + rand + '_' + image_name)
-
+        dest_path = os.path.join(_IMAGES_SEND_DIR, username.replace(' ', '-') + '_' + image_name)
         shutil.copyfile(src_path, dest_path)
 
     os.remove(src_path)

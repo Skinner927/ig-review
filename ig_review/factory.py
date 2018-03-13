@@ -11,11 +11,16 @@ _mail_logger_instance = None
 
 
 def _get_mail_logger_instance(app):
+    """
+    We only ever need one email logger
+    :param app:
+    :return:
+    """
     global _mail_logger_instance
 
     if not _mail_logger_instance:
         _mail_logger_instance = SMTPHandler(
-            mailhost=app.config['ERROR_SMTP_HOST'],
+            mailhost=(app.config['ERROR_SMTP_HOST'], app.config['ERROR_SMTP_PORT']),
             fromaddr=app.config['ERROR_SMTP_FROM'],
             toaddrs=app.config['ERROR_SMTP_TO'],
             subject=app.config['ERROR_SMTP_SUBJECT'],
@@ -47,12 +52,13 @@ def create_app(package_name, package_path, settings_override=None):
         'IMAGES_REVIEW_DIR',
         'IMAGES_SEND_DIR',
         'USER_STORAGE_FILE',
+        'LOCKFILE_DIR',
     ]
-    storage_root = app.config['STORAGE_ROOT'] or app.instance_path
+    app.config['STORAGE_ROOT'] = app.config['STORAGE_ROOT'] or app.instance_path
     for key in map_relative_path_from_storage_root:
         val = app.config[key]
         if not os.path.isabs(val):
-            app.config[key] = os.path.join(storage_root, val)
+            app.config[key] = os.path.join(app.config['STORAGE_ROOT'], val)
 
         path = app.config[key]
         if key.endswith('_FILE'):
@@ -79,12 +85,12 @@ def create_celery_app(mod_name, app=None):
 
     # Create a unique name for our beat schedule file
     celery.conf.beat_schedule_filename = os.path.join(
-        app.config['STORAGE_ROOT'] or app.instance_path,
+        app.config['STORAGE_ROOT'],
         'beat-schedule-' + mod_name)
 
     logger = get_task_logger(mod_name)
 
-    if app.config['ERROR_SMTP_ENABLED'] and not app.debug:
+    if app.config['ERROR_SMTP_ENABLED']:
         mail_handler = _get_mail_logger_instance(app)
         mail_handler.setLevel(logging.ERROR)
         logger.addHandler(mail_handler)
@@ -94,6 +100,10 @@ def create_celery_app(mod_name, app=None):
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return super(AppContextClass, self).__call__(*args, **kwargs)
+
+        @property
+        def log(self):
+            return logger
 
         def on_failure(self, exc, task_id, args, kwargs, einfo):
             """

@@ -1,7 +1,10 @@
 
+
 ## Development
 
-run `python wsgi.py` to start the server.
+run `python wsgi.py` to start the server in debug mode.
+
+
 
 I suggest you run the required rabbitmq server in a container.
 

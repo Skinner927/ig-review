@@ -4,18 +4,21 @@ Default settings for entire application
 import datetime
 
 DEBUG = True
+# python -c 'import os; print(os.urandom(24))'
 SECRET_KEY = 'super-secret-key'
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=365)
 
 # Set up errors to be emailed
+# Uses logging.handlers.SMTPHandler
 ERROR_SMTP_ENABLED = False
 ERROR_SMTP_HOST = '127.0.0.1'
+ERROR_SMTP_PORT = 587
 ERROR_SMTP_USER = 'admin'
 ERROR_SMTP_PASS = 'hunter2'
 ERROR_SMTP_FROM = 'app@ig_review.foo'
 ERROR_SMTP_TO = ['admin@example.com']
 ERROR_SMTP_SUBJECT = 'ig_review error'
-ERROR_SMTP_SECURE = ()
+ERROR_SMTP_SECURE = ()  # See logging.handlers.SMTPHandler
 
 # STORAGE_ROOT specifies an absolute root dir.
 # If it's None, we'll use the flask instance directory.
@@ -29,19 +32,31 @@ IMAGES_REVIEW_DIR = 'images/review'
 IMAGES_SEND_DIR = 'images/send'
 # Flat file for user login
 USER_STORAGE_FILE = 'users.ini'
+LOCKFILE_DIR = 'locks'
 
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
 CELERY_BACKEND_URL = 'rpc://'
 
-# How often to scrape in minutes
+# How often to scrape IG in minutes
 SCRAPE_IG_INTERVAL = 60
+# How often to send approved images
+SEND_IG_APPROVED = 10
+# How to login to IG
 SCRAPE_IG_USER = 'foobar'
 SCRAPE_IG_PASS = 'hunter2'
-SCRAPE_IG_MAIL_TO = 'foo@bar.zar'
-SCRAPE_IG_MAIL_FROM = 'someone@example.com'
-SCRAPE_IG_MAIL_HOST = '127.0.0.1'
-SCRAPE_IG_MAIL_USER = 'emailFoobar'
-SCRAPE_IG_MAIL_PASS = 'superSecret2'
+SCRAPE_IG_FRIENDS = ['joebob22', 'stacy88']
+SCRAPE_IG_MAX_PER_FRIEND = 10  # Max number of images to pull per friend
+# Where to send approved images to
+SEND_IG_SMTP_ENABLED = False
+SEND_IG_SMTP_MAX_ATTACHMENTS = 10
+SEND_IG_SMTP_HOST = '127.0.0.1'
+SEND_IG_SMTP_PORT = 587
+SEND_IG_SMTP_USER = 'foobar'
+SEND_IG_SMTP_PASS = 'secret2'
+SEND_IG_SMTP_FROM = 'reviewe@ig_review.foo'
+SEND_IG_SMTP_TO = ['somebody@example.com']
+SEND_IG_SMTP_SUBJECT = 'reviewed images'
+SEND_IG_SMTP_SECURE = ()  # Same syntax as logging.handlers.SMTPHandler
 
 ### Below isn't used
 
